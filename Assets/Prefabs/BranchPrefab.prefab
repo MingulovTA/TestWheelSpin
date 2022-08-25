@@ -128,6 +128,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _colorId: 4
+  _nearestNodes:
+  - {fileID: 1644141893329193638}
 --- !u!1 &1644141892751598709
 GameObject:
   m_ObjectHideFlags: 0
@@ -454,6 +456,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _colorId: 3
+  _nearestNodes:
+  - {fileID: 1644141894243705064}
+  - {fileID: 1644141892636171553}
 --- !u!1 &1644141893369671324
 GameObject:
   m_ObjectHideFlags: 0
@@ -499,6 +504,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _colorId: 2
+  _nearestNodes:
+  - {fileID: 1644141894243705064}
 --- !u!1 &1644141893385391501
 GameObject:
   m_ObjectHideFlags: 0
@@ -878,3 +885,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _colorId: 1
+  _nearestNodes:
+  - {fileID: 1644141893369671322}
+  - {fileID: 1644141893329193638}
