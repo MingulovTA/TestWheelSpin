@@ -1,42 +1,84 @@
 using System;
-using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 
 namespace TestWheelSpin.Gameplay
 {
     public class Ball : MonoBehaviour
     {
-        private readonly Dictionary<ColorId,Color32> _ballsPalletes = new Dictionary<ColorId, Color32>
-        {
-            {ColorId.Black, new Color32(128,128,128,255)},
-            {ColorId.Blue, new Color32(80,100,255,255)},
-            {ColorId.Green, new Color32(140,255,105,255)},
-            {ColorId.Cyan, new Color32(0,255,255,255)},
-        };
-        
         [SerializeField] private SpriteRenderer _spriteRenderer;
+        
         private ColorId _currentColorId;
+        private Coroutine _moveAnimation;
+        private Action<Ball> _onPressed;
+        private Action<Ball> _onReleased;
 
-        public void SetColor(ColorId newColorId)
+        private Transform _transform;
+        private Transform Transform
+        {
+            get
+            {
+                if (_transform == null)
+                    _transform = transform;
+                return _transform;
+            }
+        }
+        private float _movementSpeed;
+
+        public ColorId CurrentColorId => _currentColorId;
+
+        public void Init(ColorId newColorId, Color color, float movementSpeed, Action<Ball> onBallPressed, Action<Ball> onBallReleased)
         {
             _currentColorId = newColorId;
-            _spriteRenderer.color = _ballsPalletes[newColorId];
+            _spriteRenderer.color = color;
+            _movementSpeed = movementSpeed;
+            _onPressed = onBallPressed;
+            _onReleased = onBallReleased;
+            Transform.localPosition = Vector3.zero;
+        }
+        public void TryToMoveToNode()
+        {
+            if (_moveAnimation!=null) return;
+            _moveAnimation = StartCoroutine(ReturnToParentNodeAnimation());
         }
 
-        private Vector3 _cubeVelocity;
-        private void Update()
+        private Vector3 _tempPosition;
+        public void MoveMomentary(Vector3 newPosition)
         {
-            _cubeVelocity = Vector3.zero;
-            if (Input.GetKey(KeyCode.W))
-                _cubeVelocity += Vector3.up;
-            if (Input.GetKey(KeyCode.S))
-                _cubeVelocity += Vector3.down;
-            if (Input.GetKey(KeyCode.A))
-                _cubeVelocity += Vector3.left;
-            if (Input.GetKey(KeyCode.D))
-                _cubeVelocity += Vector3.right;
-            _cubeVelocity *= Time.deltaTime*4;
-            transform.Translate(_cubeVelocity);
+            _tempPosition = newPosition;
+            _tempPosition.z = Transform.position.z;
+            Transform.position = _tempPosition;
+        }
+        
+
+        private IEnumerator ReturnToParentNodeAnimation()
+        {
+            Transform.localScale = Vector3.one * 1.2f;
+            while (Math.Abs(Vector3.Distance(Transform.localPosition, Vector3.zero)) > 0.01f)
+            {
+                Transform.localPosition =
+                    Vector3.MoveTowards(
+                        Transform.localPosition, 
+                        Vector3.zero, 
+                        Time.deltaTime * _movementSpeed);
+                yield return null;
+            }
+
+            Transform.localScale = Vector3.one;
+            _moveAnimation = null;
+        }
+
+        private void OnMouseDown()
+        {
+            if (Input.touchCount>1) return;
+            Transform.localScale = Vector3.one * 1.2f;
+            _onPressed?.Invoke(this);
+        }
+
+        private void OnMouseUp()
+        {
+            Transform.localScale = Vector3.one;
+            _onReleased?.Invoke(this);
         }
     }
 }

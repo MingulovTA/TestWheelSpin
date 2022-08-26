@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -35,8 +34,15 @@ namespace TestWheelSpin.Movement
         
         public void LocalMoveTo(Transform transform, Vector3 targetPosition, float time = 0, Action onComplete = null)
         {
+            if (_tweensd.ContainsKey(transform))
+            {
+                _tweensd[transform].Kill();
+                _tweensd.Remove(transform);
+            }
             _tweens.Add(new Tween(transform,targetPosition,time,true, onComplete, OnComplete));
         }
+        
+        private Dictionary<Transform,Tween> _tweensd = new Dictionary<Transform, Tween>();
 
         private void OnComplete(Tween tween)
         {

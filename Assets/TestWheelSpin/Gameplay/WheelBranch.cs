@@ -6,6 +6,10 @@ namespace TestWheelSpin.Gameplay
     public class WheelBranch : MonoBehaviour
     {
         [SerializeField] private List<BallNode> _nodes;
+        [SerializeField] private Circle _circle;
+
+
+        public Circle Circle => _circle;
 
         public List<BallNode> Nodes => _nodes;
 
