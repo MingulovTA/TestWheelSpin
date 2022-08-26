@@ -171,7 +171,8 @@ namespace TestWheelSpin.Gameplay
             {
                 _isGameCompleted = true;
                 Debug.Log("ИГРА ОКОНЧЕНА!");
-                Hide();
+                LockInput();
+                Invoke(nameof(Hide),2);
             }
         }
 
