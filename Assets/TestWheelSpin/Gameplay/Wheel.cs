@@ -9,7 +9,7 @@ namespace TestWheelSpin.Gameplay
         [SerializeField] private float _hiddenYoffset = -20;
         private Transform _transform;
         private float _currentAngle;
-        public event Action OnRotate;
+        private Action _rotateCallback;
         public Transform Transform
         {
             get
@@ -18,6 +18,11 @@ namespace TestWheelSpin.Gameplay
                     _transform = transform;
                 return _transform;
             }
+        }
+
+        public void Init(Action rotateCallback)
+        {
+            _rotateCallback = rotateCallback;
         }
 
         private void OnMouseDown()
@@ -31,7 +36,7 @@ namespace TestWheelSpin.Gameplay
             float newAngle = Tweener.GetAngleBetweenPoints(transform.position,Camera.main.ScreenToWorldPoint(Input.mousePosition));
             Transform.localEulerAngles += Vector3.forward * (newAngle-_currentAngle);
             _currentAngle = newAngle;
-            OnRotate?.Invoke();
+            _rotateCallback?.Invoke();
         }
     }
 }

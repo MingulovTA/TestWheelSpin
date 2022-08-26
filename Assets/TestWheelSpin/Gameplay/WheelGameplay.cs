@@ -25,94 +25,34 @@ namespace TestWheelSpin.Gameplay
         {
             _branchReference.Disable();
             _halfGravityAngle = _wheelSettings.GravityAngle/2f;
+            _wheel.Init(RecalcBallsPositions);
         }
 
         private void EraseAllBranches()
         {
             foreach (var wheelBranch in _brances)
             {
-                Destroy(wheelBranch.gameObject);
+                wheelBranch.Circle.OnStartRotating -= StartCircleRotatingHandler;
+                wheelBranch.Circle.OnStopRotating -= CompleteCircleRotatingHandler;
             }
+            
+            foreach (var wheelBranch in _brances)
+                Destroy(wheelBranch.gameObject);
             _brances.Clear();
         }
 
-        private void GenerateBranches()
-        {
-            for (int i = 0; i < _wheelSettings.BranchCount; i++)
-            {
-                WheelBranch newBranch = Instantiate(_branchReference, _branchReference.transform.parent);
-                newBranch.Enable();
-                newBranch.transform.localEulerAngles = Vector3.forward*(i*360/_wheelSettings.BranchCount);
-                _brances.Add(newBranch);
-            }
-        }
-
-        private void BuildNodeGraph()
-        {
-            for (var i = 0; i < _brances.Count; i++)
-            {
-                if (i == _brances.Count-1)
-                {
-                    _brances[i].Nodes[0].NearestNodes.Add(_brances[0].Nodes.First());
-                }
-                else
-                {
-                    _brances[i].Nodes[0].NearestNodes.Add(_brances[i+1].Nodes[0]);
-                }
-                
-                if (i == 0)
-                {
-                    _brances[i].Nodes[0].NearestNodes.Add(_brances[_brances.Count-1].Nodes.First());
-                }
-                else
-                {
-                    _brances[i].Nodes[0].NearestNodes.Add(_brances[i-1].Nodes[0]);
-                }
-                
-            }
-        }
-
-        private void FillGraphWithBalls()
-        {
-            foreach (var wheelBranch in _brances)
-            {
-                foreach (var wheelBranchNode in wheelBranch.Nodes)
-                {
-                    wheelBranchNode.Ball = Instantiate(_ballPrefab, wheelBranchNode.transform);
-
-                    wheelBranchNode.Ball.Init(
-                        wheelBranchNode.ColorId,
-                        BallPaletteFactory.GetColor(_wheelSettings.BallsPalettes,wheelBranchNode.ColorId), 
-                        _wheelSettings.BallMovementSpeed,BallPressedHandler,BallReleasedHandler);
-                    _nodeGrapth.Add(wheelBranchNode);
-                }
-            }
-        }
-        
-        private void RemoveExcessBalls()
-        {
-            for (int i = 0; i < _wheelSettings.EmptyNodeCount; i++)
-            {
-                var filledNodes = _nodeGrapth.Where(n => n.Ball != null).ToList();
-                int randomNodeIndex = Random.Range(0, filledNodes.Count - 1);
-                Debug.Log($"REMOVE {filledNodes[randomNodeIndex].Ball.CurrentColorId} BALL");
-                Destroy(filledNodes[randomNodeIndex].Ball.gameObject);
-                filledNodes[randomNodeIndex] = null;
-            }
-        }
         private void RebuildBranches()
         {
-            GenerateBranches();
-            BuildNodeGraph();
-            FillGraphWithBalls();
-            RemoveExcessBalls();
+            _brances = BranchesBuilder.GenerateBranches(_wheelSettings, _branchReference);
+            _nodeGrapth = BranchesBuilder.BuildNodeGraph(_brances);
+            BranchesBuilder.FillGraphWithBalls(_brances,_ballPrefab,_wheelSettings,BallPressedHandler,BallReleasedHandler);
+            BranchesBuilder.RemoveExcessBalls(_wheelSettings, _nodeGrapth);
 
             foreach (var wheelBranch in _brances)
             {
                 wheelBranch.Circle.OnStartRotating += StartCircleRotatingHandler;
                 wheelBranch.Circle.OnStopRotating += CompleteCircleRotatingHandler;
             }
-            
         }
 
         private Coroutine _pressedBallCoroutine;
@@ -127,16 +67,12 @@ namespace TestWheelSpin.Gameplay
                     nearestFreeNodes.Add(ballNodeNearestNode);
             }
 
-            if (nearestFreeNodes.Count == 0)
+            if (nearestFreeNodes.Count != 0)
             {
-                //Проиграть анимацию Shake
-                return;
+                ballNode.Ball = null;
+                nearestFreeNodes.Add(ballNode);
+                _pressedBallCoroutine = StartCoroutine(BallPressedMovement(pressedBall,nearestFreeNodes));
             }
-
-            ballNode.Ball = null;
-            nearestFreeNodes.Add(ballNode);
-            _pressedBallCoroutine = StartCoroutine(BallPressedMovement(pressedBall,nearestFreeNodes));
-            
         }
 
         private BallNode _nearestNode = null;
@@ -208,24 +144,6 @@ namespace TestWheelSpin.Gameplay
         {
             EraseAllBranches();
         }
-        protected override void OnEnable()
-        {
-            base.OnEnable();
-            _wheel.OnRotate += WheelRotateHandler;
-        }
-
-        protected override void OnDisable()
-        {
-            base.OnDisable();
-            _wheel.OnRotate -= WheelRotateHandler;
-        }
-
-        private void WheelRotateHandler()
-        {
-            RecalcBallsPositions();
-        }
-
-
 
         private void RecalcBallsPositions()
         {
