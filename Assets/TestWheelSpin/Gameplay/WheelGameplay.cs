@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using TestWheelSpin.Core;
 using TestWheelSpin.Gameplay.Settings;
-using TestWheelSpin.Movement;
 using UnityEngine;
 
 namespace TestWheelSpin.Gameplay
@@ -148,31 +147,19 @@ namespace TestWheelSpin.Gameplay
         private void RebuildBallsPositions()
         {
             SimpleBallsPhysic.RebuildBallsPositions(_nodeGrapth,_wheelSettings);
-            if (GameCompleted&&!_isGameCompleted)
-            {
-                _isGameCompleted = true;
-                Debug.Log("ИГРА ОКОНЧЕНА!");
-                LockInput();
-                Invoke(nameof(Hide),2);
-            }
+            
+            if (_isGameCompleted) return;
+
+            GameCompletionChecker.CheckCompleteGame(_brances,CompleteGame);
         }
 
-        private bool GameCompleted
+        private void CompleteGame()
         {
-            get
-            {
-                foreach (var wheelBranch in _brances)
-                {
-                    foreach (var wheelBranchNode in wheelBranch.Nodes)
-                    {
-                        if (wheelBranchNode.Ball==null) continue;
-                        if (wheelBranchNode.Ball.CurrentColorId != wheelBranchNode.ColorId)
-                            return false;
-                    }
-                }
-
-                return true;
-            }
+            _isGameCompleted = true;
+            Debug.Log("ИГРА ОКОНЧЕНА!");
+            LockInput();
+            Invoke(nameof(Hide),2);
         }
+        
     }
 }
