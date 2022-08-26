@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using TestWheelSpin.Movement;
 using UnityEngine;
 
 namespace TestWheelSpin.Gameplay
@@ -46,7 +47,7 @@ namespace TestWheelSpin.Gameplay
             while (Math.Abs(currentAngleZ - targetAngleZ) > 0.01f)
             {
                 yield return null;
-                currentAngleZ = MoveTowardsValue(currentAngleZ, targetAngleZ, Time.deltaTime*300f);
+                currentAngleZ = Tweener.MoveTowardsValue(currentAngleZ, targetAngleZ, Time.deltaTime*300f);
                 _currentAngle.z = currentAngleZ;
                 Transform.localEulerAngles = _currentAngle;
             }
@@ -54,15 +55,7 @@ namespace TestWheelSpin.Gameplay
             SwapNodes();
         }
         
-        public float MoveTowardsValue(float current, float target, float maxDistanceDelta)
-        {
-            float num1 = target - current;
-            float num4 = num1 *  num1;
-            if ( Math.Abs(num4) < 0.001f || maxDistanceDelta >= 0.0 && num4 <= maxDistanceDelta * maxDistanceDelta)
-                return target;
-            float num5 = (float) Math.Sqrt(num4);
-            return current + num1 / num5 * maxDistanceDelta;
-        }
+
 
         private void SwapNodes()
         {

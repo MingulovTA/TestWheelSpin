@@ -1,24 +1,21 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TestWheelSpin.Core;
 using TestWheelSpin.Gameplay.Settings;
+using TestWheelSpin.Movement;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
 namespace TestWheelSpin.Gameplay
 {
-    public class WheelGameplay : MonoBehaviour
+    public class WheelGameplay : PopupGameplay
     {
         [SerializeField] private WheelSettings _wheelSettings;
         [Space(20)]
-        [SerializeField] private SimpleButton _exitButton;
-        [SerializeField] private GameObject _inputLocker;
         [SerializeField] private WheelBranch _branchReference;
         [SerializeField] private Ball _ballPrefab;
-        [SerializeField] private Transform _wheelTransform;
-
+        [SerializeField] private Wheel _wheel;
         private List<WheelBranch> _brances = new List<WheelBranch>();
         private List<BallNode> _nodeGrapth = new List<BallNode>();
 
@@ -185,93 +182,50 @@ namespace TestWheelSpin.Gameplay
 
         private void StartCircleRotatingHandler()
         {
-            _inputLocker.gameObject.SetActive(true);
+            LockInput();
         }
         
         private void CompleteCircleRotatingHandler()
         {
-            _inputLocker.gameObject.SetActive(false);
+            UnlockInput();
             RecalcBallsPositions();
         }
-        public void Show()
+
+        protected override void OnShowStart()
         {
+            base.OnShowStart();
             RebuildBranches();
-            gameObject.SetActive(true);
-            _exitButton.Disable();
-            _inputLocker.gameObject.SetActive(true);
-            _wheelTransform.localPosition = Vector3.down*20;
-            ProjectContext.I.Tweener.LocalMoveTo(_wheelTransform,Vector3.zero,1,OnShowComplete);
-        }
-
-        private void OnShowComplete()
-        {
-            _exitButton.Enable();
-            _inputLocker.gameObject.SetActive(false);
-        }
-
-        public void Hide()
-        {
-            _wheelTransform.localPosition = Vector3.zero;
-            ProjectContext.I.Tweener.LocalMoveTo(_wheelTransform,Vector3.down*20,1,OnHideComplete);
-            _exitButton.Disable();
-            _inputLocker.gameObject.SetActive(true);
-            foreach (var wheelBranch in _brances)
-            {
-                wheelBranch.Circle.OnStartRotating -= StartCircleRotatingHandler;
-                wheelBranch.Circle.OnStopRotating -= CompleteCircleRotatingHandler;
-            }
         }
         
-        private void OnHideComplete()
+        
+        protected override void OnHideComplete()
+        {
+            base.OnHideComplete();
+            EraseAllBranches();
+        }
+
+        protected override void OnHideMomentary()
         {
             EraseAllBranches();
-            _inputLocker.gameObject.SetActive(false);
-            gameObject.SetActive(false);
+        }
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+            _wheel.OnRotate += WheelRotateHandler;
         }
 
-        public void HideMomentary()
+        protected override void OnDisable()
         {
-            EraseAllBranches();
-            _wheelTransform.localPosition = Vector3.down*20;
-            _exitButton.Disable();
-            _inputLocker.gameObject.SetActive(false);
-            gameObject.SetActive(false);
-        }
-        private void OnEnable()
-        {
-            _exitButton.OnDown += ExitButtonClickHandler;
+            base.OnDisable();
+            _wheel.OnRotate -= WheelRotateHandler;
         }
 
-        private void OnDisable()
+        private void WheelRotateHandler()
         {
-            _exitButton.OnDown -= ExitButtonClickHandler;
-        }
-
-        private void ExitButtonClickHandler()
-        {
-            Hide();
-        }
-
-        private void OnMouseDown()
-        {
-            _currentAngle = CalculeAngle(transform.position,Camera.main.ScreenToWorldPoint(Input.mousePosition));
-        }
-
-        private float _currentAngle;
-        private void OnMouseDrag()
-        {
-            float newAngle = CalculeAngle(transform.position,Camera.main.ScreenToWorldPoint(Input.mousePosition));
-            _wheelTransform.localEulerAngles += Vector3.forward * (newAngle-_currentAngle);
-            _currentAngle = newAngle;
             RecalcBallsPositions();
         }
-        
-        private float CalculeAngle(Vector2 start, Vector2 arrival)
-        {
-            var radian = Math.Atan2((arrival.y - start.y), (arrival.x - start.x));
-            var angle = (radian * (180 / Math.PI) + 360) % 360;
-            return (float)angle;
-        }
+
+
 
         private void RecalcBallsPositions()
         {
@@ -281,7 +235,7 @@ namespace TestWheelSpin.Gameplay
                     continue;
                 foreach (var ballNodeNearestNode in ballNode.NearestNodes)
                 {
-                    float angle = CalculeAngle(ballNode.transform.position,
+                    float angle = Tweener.GetAngleBetweenPoints(ballNode.transform.position,
                         ballNodeNearestNode.transform.position);
                     if (ballNodeNearestNode.Ball == null && 
                         angle > 270 - _halfGravityAngle &&

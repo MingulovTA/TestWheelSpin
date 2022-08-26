@@ -56,5 +56,22 @@ namespace TestWheelSpin.Movement
                 tween.Kill();
             }
         }
+        
+        public static float MoveTowardsValue(float current, float target, float maxDistanceDelta)
+        {
+            float num1 = target - current;
+            float num4 = num1 *  num1;
+            if ( Math.Abs(num4) < 0.001f || maxDistanceDelta >= 0.0 && num4 <= maxDistanceDelta * maxDistanceDelta)
+                return target;
+            float num5 = (float) Math.Sqrt(num4);
+            return current + num1 / num5 * maxDistanceDelta;
+        }
+        
+        public static float GetAngleBetweenPoints(Vector2 start, Vector2 arrival)
+        {
+            var radian = Math.Atan2((arrival.y - start.y), (arrival.x - start.x));
+            var angle = (radian * (180 / Math.PI) + 360) % 360;
+            return (float)angle;
+        }
     }
 }

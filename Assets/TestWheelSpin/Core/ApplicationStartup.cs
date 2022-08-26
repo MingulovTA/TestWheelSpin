@@ -7,7 +7,7 @@ namespace TestWheelSpin.Core
 {
     public class ApplicationStartup : MonoBehaviour
     {
-        [SerializeField] private WheelGameplay _wheelGameplay;
+        [SerializeField] private PopupGameplay _wheelGameplay;
 
         private void Start()
         {
