@@ -8,7 +8,7 @@ using Random = UnityEngine.Random;
 
 namespace TestWheelSpin.Gameplay
 {
-    public class BranchesBuilder:MonoBehaviour
+    public class BranchesBuilder : MonoBehaviour
     {
         public static List<WheelBranch> GenerateBranches(WheelSettings wheelSettings, WheelBranch branchPrefab)
         {
@@ -73,12 +73,18 @@ namespace TestWheelSpin.Gameplay
         
         public static void RemoveExcessBalls(WheelSettings wheelSettings, List<BallNode> nodeGraph)
         {
-            for (int i = 0; i < wheelSettings.EmptyNodeCount; i++)
+            int removedBallCounter = 0;
+
+            List<BallNode> firstLevelNodes =
+                nodeGraph.Where(ng => ng.NearestNodes.Count > 2 && ng.Ball != null).ToList();
+
+            foreach (var firstLevelNode in firstLevelNodes)
             {
-                var filledNodes = nodeGraph.Where(n => n.Ball != null).ToList();
-                int randomNodeIndex = Random.Range(0, filledNodes.Count - 1);
-                Destroy(filledNodes[randomNodeIndex].Ball.gameObject);
-                filledNodes[randomNodeIndex] = null;
+                if (removedBallCounter == wheelSettings.EmptyNodeCount)
+                    break;
+                Destroy(firstLevelNode.Ball.gameObject);
+                firstLevelNode.Ball = null;
+                removedBallCounter++;
             }
         }
 
