@@ -42,15 +42,6 @@ namespace TestWheelSpin.Gameplay
             _moveAnimation = StartCoroutine(ReturnToParentNodeAnimation());
         }
 
-        private Vector3 _tempPosition;
-        public void MoveMomentary(Vector3 newPosition)
-        {
-            _tempPosition = newPosition;
-            _tempPosition.z = Transform.position.z;
-            Transform.position = _tempPosition;
-        }
-        
-
         private IEnumerator ReturnToParentNodeAnimation()
         {
             Transform.localScale = Vector3.one * 1.2f;
