@@ -9,28 +9,33 @@ namespace TestWheelSpin.Core
     {
         [SerializeField] private PopupGameplay _wheelGameplay;
 
-        private ScreenOrientation _currentScreenOrientation;
+        private int _screenWidth;
+        private int _screenHeight;
         private void Start()
         {
-            _currentScreenOrientation = Screen.orientation;
             RebuildScreenOrientation();
             _wheelGameplay.HideMomentary();
+            
+            _screenWidth = Screen.width;
+            _screenHeight = Screen.height;
+            InvokeRepeating(nameof(CheckScreenSizeLoop),0.5f,0.5f);
         }
         private void OnMouseDown()
         {
             _wheelGameplay.Show();
         }
 
-        private void Update()
+        private void CheckScreenSizeLoop()
         {
-            if (_currentScreenOrientation != Screen.orientation)
+            if (Screen.width!=_screenWidth||Screen.height!=_screenHeight)
                 RebuildScreenOrientation();
         }
 
         private void RebuildScreenOrientation()
         {
-            _currentScreenOrientation = Screen.orientation;
-            float aspectRation = (float)Screen.width / Screen.height;
+            _screenWidth = Screen.width;
+            _screenHeight = Screen.height;
+            float aspectRation = (float)_screenWidth / _screenHeight;
             if ( aspectRation < 1)
             {
                 _wheelGameplay.transform.localScale = Vector3.one * aspectRation;
