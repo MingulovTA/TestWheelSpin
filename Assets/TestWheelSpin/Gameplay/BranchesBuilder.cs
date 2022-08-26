@@ -77,7 +77,6 @@ namespace TestWheelSpin.Gameplay
             {
                 var filledNodes = nodeGraph.Where(n => n.Ball != null).ToList();
                 int randomNodeIndex = Random.Range(0, filledNodes.Count - 1);
-                ProjectContext.I.Instantiate();
                 Destroy(filledNodes[randomNodeIndex].Ball.gameObject);
                 filledNodes[randomNodeIndex] = null;
             }
