@@ -19,13 +19,10 @@ namespace TestWheelSpin.Gameplay
         private List<WheelBranch> _brances = new List<WheelBranch>();
         private List<BallNode> _nodeGrapth = new List<BallNode>();
 
-        private float _halfGravityAngle;
-
         private void Awake()
         {
             _branchReference.Disable();
-            _halfGravityAngle = _wheelSettings.GravityAngle/2f;
-            _wheel.Init(RecalcBallsPositions);
+            _wheel.Init(RecalcBallsPositions,_wheelSettings.WheelRotationMaxSpeed);
         }
 
         private void EraseAllBranches()
@@ -156,8 +153,8 @@ namespace TestWheelSpin.Gameplay
                     float angle = Tweener.GetAngleBetweenPoints(ballNode.transform.position,
                         ballNodeNearestNode.transform.position);
                     if (ballNodeNearestNode.Ball == null && 
-                        angle > 270 - _halfGravityAngle &&
-                        angle < 270 + _halfGravityAngle)
+                        angle > 270 - _wheelSettings.GravityAngle/2f &&
+                        angle < 270 + _wheelSettings.GravityAngle/2f)
                     {
                         ballNodeNearestNode.Ball = ballNode.Ball;
                         ballNode.Ball = null;

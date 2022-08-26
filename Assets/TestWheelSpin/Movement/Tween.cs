@@ -12,7 +12,6 @@ namespace TestWheelSpin.Movement
         private Action<Tween> _completeTween;
         private Action _completeCallback;
         private Vector3 _velocity;
-        private float _speed;
         private float _maxTime;
 
         public Transform Transform => _transform;
@@ -28,7 +27,6 @@ namespace TestWheelSpin.Movement
             _isLocal = isLocal;
             _completeCallback = completeCallback;
             _completeTween = completeTween;
-            _speed = Vector3.Distance(CurrentPosition, _targetPosition) / _time;
             _startCurrentPosition = CurrentPosition;
             _velocity = (_targetPosition - _startCurrentPosition)/_maxTime;
             
@@ -42,10 +40,6 @@ namespace TestWheelSpin.Movement
 
         public void Update()
         {
-            Debug.Log("Update");
-            //_speed = Vector3.Distance(CurrentPosition, _targetPosition) / _time;
-            //_velocity = ((_targetPosition - _startCurrentPosition) * _time) / _maxTime;
-
             if (_isLocal)
                 _transform.localPosition += _velocity*Time.deltaTime;
             else

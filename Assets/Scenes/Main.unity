@@ -435,7 +435,7 @@ MonoBehaviour:
   _exitButton: {fileID: 712542500}
   _inputLocker: {fileID: 1812341233}
   _wheelSettings:
-    _wheelRotationMaxSpeed: 5
+    _wheelRotationMaxSpeed: 1
     _ballMovementSpeed: 5
     _gravityAngle: 45
     _branchCount: 6

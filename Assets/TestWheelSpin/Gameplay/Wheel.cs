@@ -6,11 +6,15 @@ namespace TestWheelSpin.Gameplay
 {
     public class Wheel : MonoBehaviour
     {
-        [SerializeField] private float _hiddenYoffset = -20;
         private Transform _transform;
-        private float _currentAngle;
+        private float _lastAngle;
+        private Vector3 _currentEulerAngles;
         private Action _rotateCallback;
-        public Transform Transform
+        private float _rotationSpeed;
+        private bool _rotatingInProgress;
+        private float _targetAngleZ;
+
+        private Transform Transform
         {
             get
             {
@@ -20,22 +24,29 @@ namespace TestWheelSpin.Gameplay
             }
         }
 
-        public void Init(Action rotateCallback)
+        public void Init(Action rotateCallback, float rotationSpeed)
         {
             _rotateCallback = rotateCallback;
+            _rotationSpeed = rotationSpeed;
         }
 
         private void OnMouseDown()
         {
-            _currentAngle = Tweener.GetAngleBetweenPoints(transform.position,Camera.main.ScreenToWorldPoint(Input.mousePosition));
+            _lastAngle = Tweener.GetAngleBetweenPoints(Transform.position,Camera.main.ScreenToWorldPoint(Input.mousePosition));
         }
-
         
         private void OnMouseDrag()
         {
             float newAngle = Tweener.GetAngleBetweenPoints(transform.position,Camera.main.ScreenToWorldPoint(Input.mousePosition));
-            Transform.localEulerAngles += Vector3.forward * (newAngle-_currentAngle);
-            _currentAngle = newAngle;
+            
+            if (_lastAngle > 270 && _lastAngle < 360 && newAngle > 0 && newAngle < 90)
+                _lastAngle = newAngle;
+            
+            if (newAngle > 270 && newAngle < 360 && _lastAngle > 0 && _lastAngle < 90)
+                _lastAngle = newAngle;
+            
+            Transform.localEulerAngles += Vector3.forward * (newAngle-_lastAngle)*_rotationSpeed;
+            _lastAngle = newAngle;
             _rotateCallback?.Invoke();
         }
     }
