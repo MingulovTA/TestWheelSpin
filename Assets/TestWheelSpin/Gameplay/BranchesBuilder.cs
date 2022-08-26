@@ -81,5 +81,27 @@ namespace TestWheelSpin.Gameplay
                 filledNodes[randomNodeIndex] = null;
             }
         }
+
+        public static void ShuffleBalls(List<BallNode> nodeGraph)
+        {
+            for (int i = 0; i < 10; i++)
+            {
+                BallNode randomNode1 = nodeGraph[Random.Range(0, nodeGraph.Count - 1)];
+                BallNode randomNode2 = nodeGraph[Random.Range(0, nodeGraph.Count - 1)];
+                SwapBalls(randomNode1, randomNode2);
+            }
+        }
+
+        private static void SwapBalls(BallNode node1, BallNode node2)
+        {
+            var tampBall = node1.Ball;
+            node1.Ball = node2.Ball;
+            node2.Ball = tampBall;
+            
+            if (node1.Ball!=null)
+                node1.Ball.SetParent(node1);
+            if (node2.Ball!=null)
+                node2.Ball.SetParent(node2);
+        }
     }
 }

@@ -42,9 +42,11 @@ namespace TestWheelSpin.Gameplay
         {
             _brances = BranchesBuilder.GenerateBranches(_wheelSettings, _branchReference);
             _nodeGrapth = BranchesBuilder.BuildNodeGraph(_brances);
+            
             BranchesBuilder.FillGraphWithBalls(_brances,_ballPrefab,_wheelSettings,BallPressedHandler,BallReleasedHandler);
             BranchesBuilder.RemoveExcessBalls(_wheelSettings, _nodeGrapth);
-
+            BranchesBuilder.ShuffleBalls(_nodeGrapth);
+            
             foreach (var wheelBranch in _brances)
             {
                 wheelBranch.Circle.OnStartRotating += StartCircleRotatingHandler;

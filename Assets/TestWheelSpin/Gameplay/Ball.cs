@@ -42,6 +42,12 @@ namespace TestWheelSpin.Gameplay
             _moveAnimation = StartCoroutine(ReturnToParentNodeAnimation());
         }
 
+        public void SetParent(BallNode node)
+        {
+            Transform.SetParent(node.transform);
+            Transform.localPosition = Vector3.zero;
+        }
+
         private IEnumerator ReturnToParentNodeAnimation()
         {
             Transform.localScale = Vector3.one * 1.2f;
