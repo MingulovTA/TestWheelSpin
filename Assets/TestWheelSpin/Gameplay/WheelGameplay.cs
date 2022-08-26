@@ -5,7 +5,6 @@ using TestWheelSpin.Core;
 using TestWheelSpin.Gameplay.Settings;
 using TestWheelSpin.Movement;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 namespace TestWheelSpin.Gameplay
 {
@@ -18,6 +17,7 @@ namespace TestWheelSpin.Gameplay
         [SerializeField] private Wheel _wheel;
         private List<WheelBranch> _brances = new List<WheelBranch>();
         private List<BallNode> _nodeGrapth = new List<BallNode>();
+        private bool _isGameCompleted;
 
         private void Awake()
         {
@@ -127,6 +127,7 @@ namespace TestWheelSpin.Gameplay
         protected override void OnShowStart()
         {
             base.OnShowStart();
+            _isGameCompleted = false;
             RebuildBranches();
         }
         
@@ -164,8 +165,9 @@ namespace TestWheelSpin.Gameplay
                 }
             }
 
-            if (GameCompleted)
+            if (GameCompleted&&!_isGameCompleted)
             {
+                _isGameCompleted = true;
                 Debug.Log("ИГРА ОКОНЧЕНА!");
                 Hide();
             }
