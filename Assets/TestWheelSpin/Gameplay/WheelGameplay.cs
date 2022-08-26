@@ -22,7 +22,7 @@ namespace TestWheelSpin.Gameplay
         private void Awake()
         {
             _branchReference.Disable();
-            _wheel.Init(RecalcBallsPositions,_wheelSettings.WheelRotationMaxSpeed);
+            _wheel.Init(RebuildBallsPositions,_wheelSettings.WheelRotationMaxSpeed);
         }
 
         private void EraseAllBranches()
@@ -112,7 +112,7 @@ namespace TestWheelSpin.Gameplay
             _nearestNode.Ball = releasedBall;
             releasedBall.TryToMoveToNode();
             StopCoroutine(_pressedBallCoroutine);
-            RecalcBallsPositions();
+            RebuildBallsPositions();
         }
 
         private void StartCircleRotatingHandler()
@@ -123,7 +123,7 @@ namespace TestWheelSpin.Gameplay
         private void CompleteCircleRotatingHandler()
         {
             UnlockInput();
-            RecalcBallsPositions();
+            RebuildBallsPositions();
         }
 
         protected override void OnShowStart()
@@ -145,28 +145,9 @@ namespace TestWheelSpin.Gameplay
             EraseAllBranches();
         }
 
-        private void RecalcBallsPositions()
+        private void RebuildBallsPositions()
         {
-            foreach (var ballNode in _nodeGrapth)
-            {
-                if (ballNode.Ball==null) 
-                    continue;
-                foreach (var ballNodeNearestNode in ballNode.NearestNodes)
-                {
-                    float angle = Tweener.GetAngleBetweenPoints(ballNode.transform.position,
-                        ballNodeNearestNode.transform.position);
-                    if (ballNodeNearestNode.Ball == null && 
-                        angle > 270 - _wheelSettings.GravityAngle/2f &&
-                        angle < 270 + _wheelSettings.GravityAngle/2f)
-                    {
-                        ballNodeNearestNode.Ball = ballNode.Ball;
-                        ballNode.Ball = null;
-                        ballNodeNearestNode.Ball.transform.SetParent(ballNodeNearestNode.transform);
-                        ballNodeNearestNode.Ball.TryToMoveToNode();
-                    }
-                }
-            }
-
+            SimpleBallsPhysic.RebuildBallsPositions(_nodeGrapth,_wheelSettings);
             if (GameCompleted&&!_isGameCompleted)
             {
                 _isGameCompleted = true;
